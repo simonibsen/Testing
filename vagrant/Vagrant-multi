@@ -1,4 +1,3 @@
- our Vagrant environment
 #
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
@@ -6,7 +5,7 @@
 Vagrant.configure("2") do |config|
 
   # create mgmt node
-  config.vm.define :mgmt do |mgmt_config|
+  config.vm.define :control do |control_config|
       mgmt_config.vm.box = "centos/6"
       mgmt_config.vm.hostname = "mgmt"
       mgmt_config.vm.network :private_network, ip: "10.0.15.10"
@@ -17,7 +16,7 @@ Vagrant.configure("2") do |config|
   end
 
   # create load balancer
-  config.vm.define :lb do |lb_config|
+  config.vm.define :loadbalance do |loadbalance_config|
       lb_config.vm.box = "centos/6"
       lb_config.vm.hostname = "lb"
       lb_config.vm.network :private_network, ip: "10.0.15.11"
@@ -40,5 +39,4 @@ Vagrant.configure("2") do |config|
         end
     end
   end
-
 end
