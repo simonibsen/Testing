@@ -4,24 +4,24 @@
 
 Vagrant.configure("2") do |config|
 
-  # create mgmt node
+  # create control node
   config.vm.define :control do |control_config|
-      mgmt_config.vm.box = "centos/6"
-      mgmt_config.vm.hostname = "mgmt"
-      mgmt_config.vm.network :private_network, ip: "10.0.15.10"
-      mgmt_config.vm.provider "virtualbox" do |vb|
+      control_config.vm.box = "centos/6"
+      control_config.vm.hostname = "control"
+      control_config.vm.network :private_network, ip: "10.0.15.10"
+      control_config.vm.provider "virtualbox" do |vb|
         vb.memory = "256"
       end
-      mgmt_config.vm.provision :shell, path: "bootstrap-mgmt.sh"
+  #    control_config.vm.provision :shell, path: "bootstrap-control.sh"
   end
 
   # create load balancer
-  config.vm.define :loadbalance do |loadbalance_config|
-      lb_config.vm.box = "centos/6"
-      lb_config.vm.hostname = "lb"
-      lb_config.vm.network :private_network, ip: "10.0.15.11"
-      lb_config.vm.network "forwarded_port", guest: 80, host: 8080
-      lb_config.vm.provider "virtualbox" do |vb|
+  config.vm.define :loadbalancer do |loadbalancer_config|
+      loadbalancer_config.vm.box = "centos/6"
+      loadbalancer_config.vm.hostname = "loadbalancer"
+      loadbalancer_config.vm.network :private_network, ip: "10.0.15.11"
+      loadbalancer_config.vm.network "forwarded_port", guest: 80, host: 8080
+      loadbalancer_config.vm.provider "virtualbox" do |vb|
         vb.memory = "256"
       end
   end
