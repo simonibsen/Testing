@@ -16,32 +16,36 @@ def vf_write(arg_list):
     address = arg_list.address
     memory = arg_list.memory
 
-    print memory,address,namecount,name,box
 
-    if namecount == 1:
-        vf = '''Vagrant.configure("2") do |config|
-  # create ''' + name +''' node
-  config.vm.define :'''+ name +''' do |'''+ name +'''_config||
-      '''+name+'''_config.vm.box = "'''+box+'''"
-      '''+name+'''_config.vm.hostname = "'''+name+'''"
-      '''+name+'''_config.vm.network :private_network, ip: "'''+address+'''"
-      '''+name+'''_config.vm.provider = "virtualbox" do |vb|
+    # Begin to write Vagrantfile
+    print 'Vagrant.configure("2") do |config|'
+
+    # Create a base config for hosts ([make sure you have the necessary RAM)
+    for i in range (0,namecount):
+
+        # Increment the IP
+        address = ip_inc(address)
+        # Add to the name prefix
+        vmname = name + str(i)
+
+        vf = '''    config.vm.define :'''+ vmname +''' do |'''+ vmname +'''_config|
+      '''+vmname+'''_config.vm.box = "'''+box+'''"
+      '''+vmname+'''_config.vm.hostname = "'''+vmname+'''"
+      '''+vmname+'''_config.vm.network :private_network, ip: "'''+address+'''"
+      '''+vmname+'''_config.vm.provider "virtualbox" do |vb|
         vb.memory = "'''+memory+'''"
       end
-   end
-       '''
-    else:
-
-
+   end'''
         print vf
+    print "end"
 
+# Add to the final tuple
+def ip_inc(ip):
+    tup1,tup2,tup3,tup4 = ip.split(".");
+    tup4 = str(int(tup4) + 1); 
+    return '.'.join([tup1,tup2,tup3,tup4]) 
+    
 def main():
-
-    '''
-    print sys.flags
-    print sys.path
-    '''
-
 
     # Let us parse our args 
     parser = argparse.ArgumentParser(description='Utility to speed up creation of Vagrantfiles')
