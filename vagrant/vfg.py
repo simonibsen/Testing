@@ -55,6 +55,7 @@ def main():
     parser.add_argument("-c", "--namecount", help='The number of VMs desired prefix named with value of name', default='1') 
     parser.add_argument("-a", "--address", help='The IP address start for this host or list of hosts', default='10.0.100.10') 
     parser.add_argument("-m", "--memory", help='The amount of memory to allocate in MB.  The default is 256MB',default='256') 
+    parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "name:memory:1024" for example.') 
 
     args = parser.parse_args()
 
