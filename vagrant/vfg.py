@@ -30,7 +30,7 @@ def vf_write(arg_list):
             var = ovrde.split(":")
             #print var
             #print var[0]
-            oname = var[0]
+            overridename = var[0]
             #print var[1]
             oconfig =  var[1]
             #print var[2]
@@ -39,15 +39,14 @@ def vf_write(arg_list):
             #overs[oname]['config'] = oconfig
             #overs[oname][oconfig] = ovalue
             #overs[oname] = [oconfig, ovalue]
-            override[oname] = True
+            override[overridename] = True
             if oconfig == 'address':
-                oaddress[oname] = ovalue
+                oaddress[overridename] = ovalue
             if oconfig == 'memory':
-                omemory[oname] = ovalue
+                omemory[overridename] = ovalue
             if oconfig == 'name':
-                oname[oname] = ovalue
+                oname[overridename] = ovalue
                 
-            print oname
 
             '''
             override[name] = True
@@ -68,12 +67,21 @@ def vf_write(arg_list):
         # Add to the name prefix
         vmname = name + str(i)
 
-        vf = '''    config.vm.define :'''+ vmname +''' do |'''+ vmname +'''_config|
-      '''+vmname+'''_config.vm.box = "'''+box+'''"
-      '''+vmname+'''_config.vm.hostname = "'''+vmname+'''"
-      '''+vmname+'''_config.vm.network :private_network, ip: "'''+address+'''"
-      '''+vmname+'''_config.vm.provider "virtualbox" do |vb|
-        vb.memory = "'''+memory+'''"
+        # These are overridden values
+        #if vmname in override: 
+        if vmname not in oname:
+            oname[vmname] = vmname
+        if vmname not in omemory:
+            omemory[vmname] = memory
+        if vmname not in oaddress:
+            oaddress[vmname] = address
+
+        vf = '''    config.vm.define :'''+ oname[vmname] +''' do |'''+ oname[vmname] +'''_config|
+      '''+oname[vmname]+'''_config.vm.box = "'''+box+'''"
+      '''+oname[vmname]+'''_config.vm.hostname = "'''+oname[vmname]+'''"
+      '''+oname[vmname]+'''_config.vm.network :private_network, ip: "'''+oaddress[vmname]+'''"
+      '''+oname[vmname]+'''_config.vm.provider "virtualbox" do |vb|
+        vb.memory = "'''+omemory[vmname]+'''"
       end
    end'''
         print vf
@@ -95,7 +103,7 @@ def main():
     parser.add_argument("-c", "--namecount", help='The number of VMs desired prefix named with value of name', default='1') 
     parser.add_argument("-a", "--address", help='The IP address start for this host or list of hosts', default='10.0.100.10') 
     parser.add_argument("-m", "--memory", help='The amount of memory to allocate in MB.  The default is 256MB',default='256') 
-    parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "name:memory:1024" for example.',nargs='*') 
+    parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: name, memory, address',nargs='*') 
 
     args = parser.parse_args()
 
