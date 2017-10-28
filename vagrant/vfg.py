@@ -16,10 +16,45 @@ def vf_write(arg_list):
     address = arg_list.address
     memory = arg_list.memory
 
+    overs = {}
+    override = {}
+    oaddress = {}
+    omemory = {}
+    oname = {}
+
     if arg_list.override:
-        override = arg_list.override
-        var = override[0].split(":")[0]
-        print var
+        for ovrde in arg_list.override:
+            #override = arg_list.override
+            #var = override[1].split(":")[2]
+            #var = override[1].split(":")[2]
+            var = ovrde.split(":")
+            #print var
+            #print var[0]
+            oname = var[0]
+            #print var[1]
+            oconfig =  var[1]
+            #print var[2]
+            ovalue = var[2]
+            #overs['name'] = oname
+            #overs[oname]['config'] = oconfig
+            #overs[oname][oconfig] = ovalue
+            #overs[oname] = [oconfig, ovalue]
+            override[oname] = True
+            if oconfig == 'address':
+                oaddress[oname] = ovalue
+            if oconfig == 'memory':
+                omemory[oname] = ovalue
+            if oconfig == 'name':
+                oname[oname] = ovalue
+                
+            print oname
+
+            '''
+            override[name] = True
+            memory[name] = new value
+            address[name] = new value
+            ...
+            ''' 
 
 
     # Begin to write Vagrantfile
