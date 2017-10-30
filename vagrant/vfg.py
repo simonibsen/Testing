@@ -53,6 +53,12 @@ def vf_write(arg_list):
         # Add to the name prefix
         vmname = name + str(i)
 
+        # Test to see if this is a primary box in a multi environment
+        if vmname == primary:
+            pribox = ", primary: true"
+        else:
+            pribox = ""
+
         # These are overridden values
         if vmname not in obox:
             obox[vmname] = box
@@ -63,15 +69,24 @@ def vf_write(arg_list):
         if vmname not in oaddress:
             oaddress[vmname] = address
 
-        vf = '''    config.vm.define :'''+oname[vmname]+''' do |'''+ oname[vmname] +'''_config|
-      '''+oname[vmname]+'''_config.vm.box = "'''+obox[vmname]+'''"
-      '''+oname[vmname]+'''_config.vm.hostname = "'''+oname[vmname]+'''"
-      '''+oname[vmname]+'''_config.vm.network :private_network, ip: "'''+oaddress[vmname]+'''"
-      '''+oname[vmname]+'''_config.vm.provider "virtualbox" do |vb|
-        vb.memory = "'''+omemory[vmname]+'''"
-      end
-   end'''
-        print vf
+        print '''    config.vm.define :%s%s do |%s_config|
+        %s_config.vm.box = "%s"
+        %s_config.vm.hostname = "%s"
+        %s_config.vm.network :private_network, ip: "%s"
+        %s_config.vm.provider "virtualbox" do |vb|
+            vb.memory = "%s"
+        end
+    end'''%(oname[vmname], 
+        pribox, 
+        oname[vmname], 
+        oname[vmname], 
+        obox[vmname], 
+        oname[vmname], 
+        oname[vmname], 
+        oname[vmname], 
+        oaddress[vmname], 
+        oname[vmname], 
+        omemory[vmname])
     print "end"
 
 # Add to the final tuple
@@ -85,7 +100,7 @@ def main():
     # Let us parse our args 
     parser = argparse.ArgumentParser(description='Utility to speed up creation of Vagrantfiles')
 
-    parser.add_argument("-b", "--box", help='The VM OS you want - note this needs to be available in Vagrantcloud.  The default is centos/6',default='centos/6') 
+    parser.add_argument("-b", "--box", help='The VM OS you want - note this needs to be available in Vagrantcloud.  The default is centos/7',default='centos/7') 
     parser.add_argument("-n", "--name", help='The name (or prefix) name(s) of the host(s)') 
     parser.add_argument("-c", "--namecount", help='The number of VMs desired prefix named with value of name', default='1') 
     parser.add_argument("-p", "--primary", help='Specify the primary box in a multi box environment') 
