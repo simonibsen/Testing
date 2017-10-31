@@ -1,7 +1,7 @@
-# vfg.py
+# vfg
 This is a simple script to more easily spit out Vagrantfiles to support various environments.
 ```
-usage: vfg.py [-h] [-p PRIMARY] [-b BOX] [-n NAME] [-c NAMECOUNT] [-a ADDRESS] [-m MEMORY]
+usage: vfg [-h] [-p PRIMARY] [-b BOX] [-n NAME] [-c NAMECOUNT] [-a ADDRESS] [-m MEMORY]
               [-o [OVERRIDE [OVERRIDE ...]]] -f [COPYFILES [COPYFILES ...]]
 
 Utility to speed up creation of Vagrantfiles
