@@ -4,8 +4,8 @@ Bits and pieces
 ## vagrant/vfg.py
 This is a simple script to more easily spit out Vagrantfiles to support various environments.
 ```
-usage: vfg.py [-h] [-b BOX] [-n NAME] [-c NAMECOUNT] [-a ADDRESS] [-m MEMORY]
-              [-o [OVERRIDE [OVERRIDE ...]]]
+usage: vfg.py [-h] [-p PRIMARY] [-b BOX] [-n NAME] [-c NAMECOUNT] [-a ADDRESS] [-m MEMORY]
+              [-o [OVERRIDE [OVERRIDE ...]]] -f [COPYFILES [COPYFILES ...]]
 
 Utility to speed up creation of Vagrantfiles
 
@@ -18,12 +18,16 @@ Optional arguments:
   -n NAME, --name NAME  The name (or prefix) name(s) of the host(s)
   -c NAMECOUNT, --namecount NAMECOUNT
                         The number of VMs desired prefix named with value of
-                        name                        
+  -p PRIMARY, --primary PRIMARY
+                        Specify the primary box in a multi box environment
   -a ADDRESS, --address ADDRESS
                         The IP address start for this host or list of hosts                        
   -m MEMORY, --memory MEMORY
                         The amount of memory to allocate in MB. The default is
                         256MB                        
+  -f [COPYFILES [COPYFILES ...]], --copyfiles [COPYFILES [COPYFILES ...]]
+                        Upload a file or directory to the guest from the host.
+                        Specified in the form of hostname:localfile:remotefile
   -o [OVERRIDE [OVERRIDE ...]], --override [OVERRIDE [OVERRIDE ...]]
                         Overrides named host vaules with other values starting
                         with host name, value name, and the value itself, in

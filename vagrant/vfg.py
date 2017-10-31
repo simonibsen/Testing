@@ -17,6 +17,23 @@ def vf_write(arg_list):
     memory = arg_list.memory
     primary = arg_list.primary
 
+    localfiles = {}
+    remotefiles = {}
+
+    if arg_list.copyfiles:
+        for copyfile in arg_list.copyfiles:
+
+            print copyfile
+            var = copyfile.split(":")
+            print var
+            filehostname = var[0]
+            localfile =  var[1]
+            remotefile = var[2]
+
+            #files[filehostname] = True
+            localfiles[filehostname] = localfile
+            remotefiles[filehostname] = remotefile
+
     overs = {}
     override = {}
     obox = {}
@@ -32,7 +49,7 @@ def vf_write(arg_list):
             oconfig =  var[1]
             ovalue = var[2]
 
-            override[overridename] = True
+            #override[overridename] = True
             if oconfig == 'box':
                 obox[overridename] = ovalue
             if oconfig == 'address':
@@ -59,6 +76,12 @@ def vf_write(arg_list):
         else:
             pribox = ""
 
+        # These are file values
+        if (vmname in localfiles and vmname in remotefiles):
+            fileline = '''config.vm.provision "file", source: "%s", destination: "%s" '''%(localfiles[vmname],remotefiles[vmname])
+        else:
+            fileline = None
+
         # These are overridden values
         if vmname not in obox:
             obox[vmname] = box
@@ -76,6 +99,7 @@ def vf_write(arg_list):
         %s_config.vm.provider "virtualbox" do |vb|
             vb.memory = "%s"
         end
+        %s
     end'''%(oname[vmname], 
         pribox, 
         oname[vmname], 
@@ -86,7 +110,8 @@ def vf_write(arg_list):
         oname[vmname], 
         oaddress[vmname], 
         oname[vmname], 
-        omemory[vmname])
+        omemory[vmname],
+        fileline)
     print "end"
 
 # Add to the final tuple
@@ -106,14 +131,15 @@ def main():
     parser.add_argument("-p", "--primary", help='Specify the primary box in a multi box environment') 
     parser.add_argument("-a", "--address", help='The IP address start for this host or list of hosts', default='10.0.100.10') 
     parser.add_argument("-m", "--memory", help='The amount of memory to allocate in MB.  The default is 256MB',default='256') 
+    parser.add_argument("-f", "--copyfiles", help='Upload a file or directory to the guest from the host.  Specified in the form of hostname:localfile:remotefile',nargs='*') 
     parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: box, name, memory, address',nargs='*') 
-    # Enable primary machine selection - https://www.vagrantup.com/docs/multi-machine/
-    # Enable docker provider support - https://www.vagrantup.com/docs/docker/basics.html
+
     # Enable auto syncing of files at provision - config.vm.provision "file", https://www.vagrantup.com/docs/provisioning/file.html
     # Enable auto syncing of shell at provision - config.vm.provision "shell", https://www.vagrantup.com/docs/provisioning/shell.html
     # Enable auto syncing of ansible at provision - config.vm.provision "ansible", https://www.vagrantup.com/docs/provisioning/ansible.html
     # Enable port forwarding - https://www.vagrantup.com/docs/networking/forwarded_ports.html
     # Enable synced folders - https://www.vagrantup.com/docs/synced-folders/basic_usage.html
+    # Enable docker provider support - https://www.vagrantup.com/docs/docker/basics.html
 
     args = parser.parse_args()
 
