@@ -27,7 +27,12 @@ Optional arguments:
                         256MB                        
   -f [COPYFILES [COPYFILES ...]], --copyfiles [COPYFILES [COPYFILES ...]]
                         Upload a file or directory to the guest from the host.
-                        Specified in the form of hostname:localfile:remotefile
+                        Specified in the form of hostname:localfile:remotefile 
+                        where hostname can be ALL
+  -s [STRING [STRING ...]], --string [STRING [STRING ...]]
+                        Write some arbitrary string (not covered by other
+                        option). Specified in the form of hostname:string
+                        where hostname can be ALL and string is quoted
   -o [OVERRIDE [OVERRIDE ...]], --override [OVERRIDE [OVERRIDE ...]]
                         Overrides named host vaules with other values starting
                         with host name, value name, and the value itself, in
