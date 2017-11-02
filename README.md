@@ -33,6 +33,10 @@ Optional arguments:
                         Enable basic shell provisioning [inline type],
                         specified in the form hostname:inline_string where
                         hostname can be ALL and string is quoted
+  --ansible [ANSIBLE [ANSIBLE ...]]
+                        Enable basic ansible provisioning [inline type],
+                        specified in the form hostname:inline_string where
+                        hostname can be ALL and string is quoted
   -o [OVERRIDE [OVERRIDE ...]], --override [OVERRIDE [OVERRIDE ...]]
                         Overrides named host vaules with other values starting
                         with host name, value name, and the value itself, in

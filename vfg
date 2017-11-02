@@ -16,13 +16,13 @@ def vf_write(arg_list):
     address = arg_list.address
     memory = arg_list.memory
     primary = arg_list.primary
-    shell = arg_list.shell
 
     localfiles = {}
     remotefiles = {}
 
     strings = {}
     shells = {}
+    ansibles = {}
 
     if arg_list.copyfiles:
 
@@ -47,11 +47,20 @@ def vf_write(arg_list):
     if arg_list.shell:
 
         for thisshell in arg_list.shell:
+
             var = thisshell.split(":")
-            print var
             shellhostname = var[0]
             ashell =  var[1]
             shells[shellhostname] = ashell
+
+    if arg_list.ansible:
+
+        for thisansible in arg_list.ansible:
+
+            var = thisansible.split(":")
+            ansiblehostname = var[0]
+            ansiblevar =  var[1]
+            ansibles[ansiblehostname] = ansiblevar
 
     overs = {}
     override = {}
@@ -97,25 +106,37 @@ def vf_write(arg_list):
 
         # Test to see if we have shell provisioning
         if (vmname in shells):
-            shellline = '''config.vm.provision "shell", path: "''' + shells[shellhostname] + '''"'''
+            shellline = '''    config.vm.provision "shell", path: "''' + shells[shellhostname] + '''"\n''' 
         elif ('ALL' in shells):
-            shellline = '''config.vm.provision "shell", path: "''' + shells['ALL'] + '''"'''
+            shellline = '''    config.vm.provision "shell", path: "''' + shells['ALL'] + '''"\n'''
         else:
             shellline = ""
 
+        # Test to see if we have ansible provisioning
+        if (vmname in ansibles):
+            ansibleline = '''    config.vm.provision "ansible" do |ansible|
+            ansible.playbook = "''' + ansibles[vmname] + '''"
+        end'''
+        elif ('ALL' in ansibles):
+            ansibleline = '''    config.vm.provision "ansible" do |ansible|
+            ansible.playbook = "''' + ansibles['ALL'] + '''"
+        end'''
+        else:
+            ansibleline = ''
+
         # These are file values
         if (vmname in localfiles and vmname in remotefiles): 
-            fileline = '''config.vm.provision "file", source: "%s", destination: "%s" '''%(localfiles[vmname],remotefiles[vmname])
+            fileline = '''    config.vm.provision "file", source: "%s", destination: "%s" '''%(localfiles[vmname],remotefiles[vmname]) + '''\n'''
         elif ('ALL' in localfiles and 'ALL' in remotefiles):
-            fileline = '''config.vm.provision "file", source: "%s", destination: "%s" '''%(localfiles['ALL'],remotefiles['ALL'])
+            fileline = '''    config.vm.provision "file", source: "%s", destination: "%s" '''%(localfiles['ALL'],remotefiles['ALL']) + '''\n'''
         else:
             fileline = ""
 
         # These are string values
         if (vmname in strings): 
-            stringline = strings[vmname]
+            stringline = strings[vmname] + '''\n'''
         elif ('ALL' in strings):
-            stringline = strings['ALL']
+            stringline = strings['ALL'] + '''\n'''
         else:
             stringline = ""
 
@@ -136,9 +157,6 @@ def vf_write(arg_list):
         %s_config.vm.provider "virtualbox" do |vb|
             vb.memory = "%s"
         end
-        %s
-        %s
-        %s
     end'''%(oname[vmname], 
         pribox, 
         oname[vmname], 
@@ -149,10 +167,11 @@ def vf_write(arg_list):
         oname[vmname], 
         oaddress[vmname], 
         oname[vmname], 
-        omemory[vmname],
-        fileline,
-        shellline,
-        stringline)
+        omemory[vmname])
+        print fileline,
+        print shellline,
+        print ansibleline,
+        print stringline,
     print "end"
 
 # Add to the final tuple
@@ -175,6 +194,7 @@ def main():
     parser.add_argument("-f", "--copyfiles", help='Upload a file or directory to the guest from the host.  Specified in the form of hostname:localfile:remotefile, where hostname can be special value of ALL',nargs='*') 
     parser.add_argument("-s", "--string", help='Write some arbitrary string (not covered by other option).  Specified in the form of hostname:string where hostname can be ALL and string is quoted',nargs='*') 
     parser.add_argument("--shell", help='Enable basic shell provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
+    parser.add_argument("--ansible", help='Enable basic ansible provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
     parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: box, name, memory, address',nargs='*') 
 
     # Enable auto syncing of ansible at provision - config.vm.provision "ansible", https://www.vagrantup.com/docs/provisioning/ansible.html
