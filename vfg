@@ -16,11 +16,13 @@ def vf_write(arg_list):
     address = arg_list.address
     memory = arg_list.memory
     primary = arg_list.primary
+    shell = arg_list.shell
 
     localfiles = {}
     remotefiles = {}
 
     strings = {}
+    shells = {}
 
     if arg_list.copyfiles:
 
@@ -41,6 +43,15 @@ def vf_write(arg_list):
             stringhostname = var[0]
             astring =  var[1]
             strings[stringhostname] = astring
+
+    if arg_list.shell:
+
+        for thisshell in arg_list.shell:
+            var = thisshell.split(":")
+            print var
+            shellhostname = var[0]
+            ashell =  var[1]
+            shells[shellhostname] = ashell
 
     overs = {}
     override = {}
@@ -84,6 +95,14 @@ def vf_write(arg_list):
         else:
             pribox = ""
 
+        # Test to see if we have shell provisioning
+        if (vmname in shells):
+            shellline = '''config.vm.provision "shell", path: "''' + shells[shellhostname] + '''"'''
+        elif ('ALL' in shells):
+            shellline = '''config.vm.provision "shell", path: "''' + shells['ALL'] + '''"'''
+        else:
+            shellline = ""
+
         # These are file values
         if (vmname in localfiles and vmname in remotefiles): 
             fileline = '''config.vm.provision "file", source: "%s", destination: "%s" '''%(localfiles[vmname],remotefiles[vmname])
@@ -119,6 +138,7 @@ def vf_write(arg_list):
         end
         %s
         %s
+        %s
     end'''%(oname[vmname], 
         pribox, 
         oname[vmname], 
@@ -131,6 +151,7 @@ def vf_write(arg_list):
         oname[vmname], 
         omemory[vmname],
         fileline,
+        shellline,
         stringline)
     print "end"
 
@@ -153,9 +174,9 @@ def main():
     parser.add_argument("-m", "--memory", help='The amount of memory to allocate in MB.  The default is 256MB',default='256') 
     parser.add_argument("-f", "--copyfiles", help='Upload a file or directory to the guest from the host.  Specified in the form of hostname:localfile:remotefile, where hostname can be special value of ALL',nargs='*') 
     parser.add_argument("-s", "--string", help='Write some arbitrary string (not covered by other option).  Specified in the form of hostname:string where hostname can be ALL and string is quoted',nargs='*') 
+    parser.add_argument("--shell", help='Enable basic shell provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
     parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: box, name, memory, address',nargs='*') 
 
-    # Enable auto syncing of shell at provision - config.vm.provision "shell", https://www.vagrantup.com/docs/provisioning/shell.html
     # Enable auto syncing of ansible at provision - config.vm.provision "ansible", https://www.vagrantup.com/docs/provisioning/ansible.html
     # Enable port forwarding - https://www.vagrantup.com/docs/networking/forwarded_ports.html
     # Enable synced folders - https://www.vagrantup.com/docs/synced-folders/basic_usage.html

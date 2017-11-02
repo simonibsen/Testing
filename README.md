@@ -9,9 +9,8 @@ Utility to speed up creation of Vagrantfiles
 Optional arguments:
 
   -h, --help            show this help message and exit
-  
   -b BOX, --box BOX     The VM OS you want - note this needs to be available
-                        in Vagrantcloud. The default is centos/6                 
+                        in Vagrantcloud. The default is centos/7                 
   -n NAME, --name NAME  The name (or prefix) name(s) of the host(s)
   -c NAMECOUNT, --namecount NAMECOUNT
                         The number of VMs desired prefix named with value of
@@ -30,6 +29,10 @@ Optional arguments:
                         Write some arbitrary string (not covered by other
                         option). Specified in the form of hostname:string
                         where hostname can be ALL and string is quoted
+  --shell [SHELL [SHELL ...]]
+                        Enable basic shell provisioning [inline type],
+                        specified in the form hostname:inline_string where
+                        hostname can be ALL and string is quoted
   -o [OVERRIDE [OVERRIDE ...]], --override [OVERRIDE [OVERRIDE ...]]
                         Overrides named host vaules with other values starting
                         with host name, value name, and the value itself, in
