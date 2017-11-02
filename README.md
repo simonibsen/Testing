@@ -1,4 +1,4 @@
-# vfg
+# vfg - Vagrant File Generator
 This is a simple script to more easily spit out Vagrantfiles to support various environments.
 ```
 usage: vfg [-h] [-p PRIMARY] [-b BOX] [-n NAME] [-c NAMECOUNT] [-a ADDRESS] [-m MEMORY]
@@ -9,9 +9,10 @@ Utility to speed up creation of Vagrantfiles
 Optional arguments:
 
   -h, --help            show this help message and exit
+  -n NAME, --name NAME  The name (or prefix) name(s) of the host(s).  This is
+                        a REQUIRED option
   -b BOX, --box BOX     The VM OS you want - note this needs to be available
                         in Vagrantcloud. The default is centos/7                 
-  -n NAME, --name NAME  The name (or prefix) name(s) of the host(s)
   -c NAMECOUNT, --namecount NAMECOUNT
                         The number of VMs desired prefix named with value of
   -p PRIMARY, --primary PRIMARY
@@ -29,6 +30,9 @@ Optional arguments:
                         Write some arbitrary string (not covered by other
                         option). Specified in the form of hostname:string
                         where hostname can be ALL and string is quoted
+  --ports [PORTS [PORTS ...]]
+                        Forward ports from host to guest machines. The format
+                        is hostname:guestport:hostport
   --shell [SHELL [SHELL ...]]
                         Enable basic shell provisioning [inline type],
                         specified in the form hostname:inline_string where

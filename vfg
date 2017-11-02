@@ -7,6 +7,8 @@ import argparse
 
 def vf_write(arg_list):
 
+    t = ' ' * 4
+
     '''
     Process args and write corresponding Vagrantfile to STDOUT
     '''
@@ -19,6 +21,9 @@ def vf_write(arg_list):
 
     localfiles = {}
     remotefiles = {}
+
+    hostports = {}
+    guestports = {}
 
     strings = {}
     shells = {}
@@ -52,6 +57,26 @@ def vf_write(arg_list):
             shellhostname = var[0]
             ashell =  var[1]
             shells[shellhostname] = ashell
+
+    if arg_list.ports:
+
+        for theseports in arg_list.ports:
+
+            var = theseports.split(":")
+            porthostname = var[0]
+            hostport =  var[1]
+            guestport =  var[2]
+            hostports[porthostname] = hostport 
+            guestports[porthostname] = guestport
+
+    if arg_list.ansible:
+
+        for thisansible in arg_list.ansible:
+
+            var = thisansible.split(":")
+            ansiblehostname = var[0]
+            ansiblevar =  var[1]
+            ansibles[ansiblehostname] = ansiblevar
 
     if arg_list.ansible:
 
@@ -132,6 +157,12 @@ def vf_write(arg_list):
         else:
             fileline = ""
 
+        # These are port values
+        if (vmname in hostports  and vmname in guestports): 
+            portline = '''    config.vm.network "forwarded_port", guest: "%s", host: "%s" '''%(hostports[vmname],guestports[vmname]) + '''\n'''
+        else:
+            portline = ""
+
         # These are string values
         if (vmname in strings): 
             stringline = strings[vmname] + '''\n'''
@@ -150,14 +181,13 @@ def vf_write(arg_list):
         if vmname not in oaddress:
             oaddress[vmname] = address
 
-        print '''    config.vm.define :%s%s do |%s_config|
+        print '''\n    config.vm.define :%s%s do |%s_config|
         %s_config.vm.box = "%s"
         %s_config.vm.hostname = "%s"
         %s_config.vm.network :private_network, ip: "%s"
         %s_config.vm.provider "virtualbox" do |vb|
             vb.memory = "%s"
-        end
-    end'''%(oname[vmname], 
+        end'''%(oname[vmname], 
         pribox, 
         oname[vmname], 
         oname[vmname], 
@@ -168,11 +198,18 @@ def vf_write(arg_list):
         oaddress[vmname], 
         oname[vmname], 
         omemory[vmname])
-        print fileline,
-        print shellline,
-        print ansibleline,
-        print stringline,
-    print "end"
+        if fileline:
+            print t + fileline,
+        if portline:
+            print t + portline,
+        if shellline:
+            print t + shellline,
+        if ansibleline:
+            print t + ansibleline,
+        if stringline:
+            print t + stringline,
+        print t + "end"
+    print "\nend"
 
 # Add to the final tuple
 def ip_inc(ip):
@@ -185,20 +222,19 @@ def main():
     # Let us parse our args 
     parser = argparse.ArgumentParser(description='Utility to speed up creation of Vagrantfiles')
 
+    parser.add_argument("-n", "--name", help='The name (or prefix) name(s) of the host(s).  This is a REQUIRED option') 
     parser.add_argument("-b", "--box", help='The VM OS you want - note this needs to be available in Vagrantcloud.  The default is centos/7',default='centos/7') 
-    parser.add_argument("-n", "--name", help='The name (or prefix) name(s) of the host(s)') 
     parser.add_argument("-c", "--namecount", help='The number of VMs desired prefix named with value of name', default='1') 
     parser.add_argument("-p", "--primary", help='Specify the primary box in a multi box environment') 
     parser.add_argument("-a", "--address", help='The IP address start for this host or list of hosts', default='10.0.100.10') 
     parser.add_argument("-m", "--memory", help='The amount of memory to allocate in MB.  The default is 256MB',default='256') 
     parser.add_argument("-f", "--copyfiles", help='Upload a file or directory to the guest from the host.  Specified in the form of hostname:localfile:remotefile, where hostname can be special value of ALL',nargs='*') 
     parser.add_argument("-s", "--string", help='Write some arbitrary string (not covered by other option).  Specified in the form of hostname:string where hostname can be ALL and string is quoted',nargs='*') 
+    parser.add_argument("--ports", help='Forward ports from host to guest machines.  The format is hostname:guestport:hostport', nargs='*') 
     parser.add_argument("--shell", help='Enable basic shell provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
     parser.add_argument("--ansible", help='Enable basic ansible provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
     parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: box, name, memory, address',nargs='*') 
 
-    # Enable auto syncing of ansible at provision - config.vm.provision "ansible", https://www.vagrantup.com/docs/provisioning/ansible.html
-    # Enable port forwarding - https://www.vagrantup.com/docs/networking/forwarded_ports.html
     # Enable synced folders - https://www.vagrantup.com/docs/synced-folders/basic_usage.html
     # Enable docker provider support - https://www.vagrantup.com/docs/docker/basics.html
 
