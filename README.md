@@ -30,6 +30,10 @@ Optional arguments:
                         Write some arbitrary string (not covered by other
                         option). Specified in the form of hostname:string
                         where hostname can be ALL and string is quoted
+  --sync [SYNC [SYNC ...]]
+                        Sync directory to the guest from the host. Specified
+                        in the form of hostname:localdir:remotedir, where
+                        hostname can be special value of ALL
   --ports [PORTS [PORTS ...]]
                         Forward ports from host to guest machines. The format
                         is hostname:guestport:hostport

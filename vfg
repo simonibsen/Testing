@@ -22,6 +22,9 @@ def vf_write(arg_list):
     localfiles = {}
     remotefiles = {}
 
+    localdirs = {}
+    remotedirs = {}
+
     hostports = {}
     guestports = {}
 
@@ -39,6 +42,17 @@ def vf_write(arg_list):
             remotefile = var[2]
             localfiles[filehostname] = localfile
             remotefiles[filehostname] = remotefile
+
+    if arg_list.sync:
+
+        for syncdir in arg_list.sync:
+
+            var = syncdir.split(":")
+            synchostname = var[0]
+            localdir =  var[1]
+            remotedir = var[2]
+            localdirs[synchostname] = localdir
+            remotedirs[synchostname] = remotedir
 
     if arg_list.string:
 
@@ -141,11 +155,11 @@ def vf_write(arg_list):
         if (vmname in ansibles):
             ansibleline = '''    config.vm.provision "ansible" do |ansible|
             ansible.playbook = "''' + ansibles[vmname] + '''"
-        end'''
+        end\n'''
         elif ('ALL' in ansibles):
             ansibleline = '''    config.vm.provision "ansible" do |ansible|
             ansible.playbook = "''' + ansibles['ALL'] + '''"
-        end'''
+        end\n'''
         else:
             ansibleline = ''
 
@@ -156,6 +170,14 @@ def vf_write(arg_list):
             fileline = '''    config.vm.provision "file", source: "%s", destination: "%s" '''%(localfiles['ALL'],remotefiles['ALL']) + '''\n'''
         else:
             fileline = ""
+
+        # These are syncdir values
+        if (vmname in localdirs and vmname in remotedirs): 
+            syncdirline = '''    config.vm.synced_folder "%s", "%s" '''%(localdirs[vmname],remotedirs[vmname]) + '''\n'''
+        elif ('ALL' in localdirs and 'ALL' in remotedirs):
+            syncdirline = '''    config.vm.synced_folder "%s", "%s" '''%(localdirs['ALL'],remotedirs['ALL']) + '''\n'''
+        else:
+            syncdirline = ""
 
         # These are port values
         if (vmname in hostports  and vmname in guestports): 
@@ -208,6 +230,8 @@ def vf_write(arg_list):
             print t + ansibleline,
         if stringline:
             print t + stringline,
+        if syncdirline:
+            print t + syncdirline,
         print t + "end"
     print "\nend"
 
@@ -229,13 +253,13 @@ def main():
     parser.add_argument("-a", "--address", help='The IP address start for this host or list of hosts', default='10.0.100.10') 
     parser.add_argument("-m", "--memory", help='The amount of memory to allocate in MB.  The default is 256MB',default='256') 
     parser.add_argument("-f", "--copyfiles", help='Upload a file or directory to the guest from the host.  Specified in the form of hostname:localfile:remotefile, where hostname can be special value of ALL',nargs='*') 
-    parser.add_argument("-s", "--string", help='Write some arbitrary string (not covered by other option).  Specified in the form of hostname:string where hostname can be ALL and string is quoted',nargs='*') 
+    parser.add_argument("--sync", help='Sync directory to the guest from the host.  Specified in the form of hostname:localdir:remotedir, where hostname can be special value of ALL',nargs='*') 
     parser.add_argument("--ports", help='Forward ports from host to guest machines.  The format is hostname:guestport:hostport', nargs='*') 
     parser.add_argument("--shell", help='Enable basic shell provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
     parser.add_argument("--ansible", help='Enable basic ansible provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
-    parser.add_argument("-o", "--override", help='Overrides named host vaules with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: box, name, memory, address',nargs='*') 
+    parser.add_argument("-o", "--override", help='Overrides named host values with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: box, name, memory, address',nargs='*') 
+    parser.add_argument("-s", "--string", help='Write some arbitrary string (not covered by other option).  Specified in the form of hostname:string where hostname can be ALL and string is quoted',nargs='*') 
 
-    # Enable synced folders - https://www.vagrantup.com/docs/synced-folders/basic_usage.html
     # Enable docker provider support - https://www.vagrantup.com/docs/docker/basics.html
 
     args = parser.parse_args()
