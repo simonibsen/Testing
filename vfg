@@ -5,6 +5,7 @@
 import sys
 import argparse
 
+
 def vf_write(arg_list):
 
     t = ' ' * 4
@@ -140,6 +141,7 @@ def vf_write(arg_list):
                 oname[overridename] = ovalue
                 
     # Begin to write Vagrantfile
+    print '## Command used to generate Vagrantfile:' + str(sys.argv)
     print 'Vagrant.configure("2") do |config|'
 
     # Create a base config for hosts ([make sure you have the necessary RAM)
@@ -286,8 +288,8 @@ def main():
     parser.add_argument("--ports", help='Forward ports from host to guest machines.  The format is hostname:guestport:hostport', nargs='*') 
     parser.add_argument("--shell", help='Enable basic shell provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
     parser.add_argument("--ansible", help='Enable basic ansible provisioning [inline type], specified in the form hostname:inline_string where hostname can be ALL and string is quoted', nargs='*') 
-    parser.add_argument("--providers", help='Specify alternate providers, including  Docker provider.  The format is hostname:inline_string where hostname can be ALL.  The default is Virtualbox', nargs='*' ) 
-    parser.add_argument("--dockerimage", help='If provider is Docker specify the image.  This image can be from any Docker registry.  The default is', default='foo/bar' ) 
+    parser.add_argument("--providers", help='Specify alternate providers, including Docker provider.  The format is hostname:inline_string where hostname can be ALL.  The default is Virtualbox', nargs='*' ) 
+    parser.add_argument("--dockerimage", help='If provider is Docker specify the image.  This image can be from any Docker registry.  The default is alpine', default='alpine') 
     parser.add_argument("--dockerfilebuild", help='If provider is Docker Build a dockerfile in the same directory as the Vagrantfile', default='True') 
     parser.add_argument("-o", "--override", help='Overrides named host values with other values starting with host name, value name, and the value itself, in the form of "hostname:memory:1024" for example.  Currently the following overrides are supported: box, name, memory, address',nargs='*') 
     parser.add_argument("-s", "--string", help='Write some arbitrary string (not covered by other option).  Specified in the form of hostname:string where hostname can be ALL and string is quoted',nargs='*') 
